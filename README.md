@@ -10,7 +10,6 @@ Clone the repository:<br>
 ## Docker
 
 To build the project you need to create an image:<br>
-
 <code>docker build -t first:latest</code><br>
 
 To run container:<br>
@@ -21,7 +20,7 @@ To run container:<br>
 To build an image with dicker-compose run:<br>
 <code>docker-compose build</code><br>
 
-To run:
+To run:<br>
 <code>docker-compose up</code><br>
 
 To access the application:<br>
