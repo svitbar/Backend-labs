@@ -1,0 +1,29 @@
+{
+  "name": "backend-labs",
+  "version": "1.0.0",
+  "description": "Basic web-service in NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/svitbar/Backend-labs.git"
+  },
+  "author": "Svitlana Barytska",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/svitbar/Backend-labs/issues"
+  },
+  "homepage": "https://github.com/svitbar/Backend-labs#readme",
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "eslint-config-google": "^0.14.0",
+    "nodemon": "^3.0.2"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
