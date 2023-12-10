@@ -4,7 +4,7 @@ const moment = require('moment-timezone');
 const router = express.Router();
 
 router.get('/healthcheck', (req, res) => {
-  const timeZone = 'Ukraine/Kyiv';
+  const timeZone = 'Europe/Kiev';
   const currentDate = moment().tz(timeZone);
   const formattedDate = currentDate.format('YYYY-MM-DD HH:mm:ss');
 
