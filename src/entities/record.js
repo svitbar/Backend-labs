@@ -1,5 +1,5 @@
 class Record {
-  constructor(id = 1, userId, categoryId, date, cost) {
+  constructor(id, userId, categoryId, date, cost) {
     this.id = id;
     this.userId = userId;
     this.categoryId = categoryId;

@@ -1,5 +1,5 @@
 class Category {
-  constructor(id = 1, name) {
+  constructor(id, name) {
     this.id = id;
     this.name = name;
   }
