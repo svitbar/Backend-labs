@@ -32,14 +32,14 @@ const deleteCategoryById = (req, res) => {
   const id = req.params.id;
 
   const index = categories.findIndex((category) => {
-    category.id === parseInt(id);
+    return category.id === parseInt(id);
   });
 
   if (index !== -1) {
     const deletedCategory = categories.splice(index, 1)[0];
 
     return res.status(200).json({
-      message: 'category was successfully deleted.',
+      message: 'Category was successfully deleted.',
       category: deletedCategory,
     });
   } else {

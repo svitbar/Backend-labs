@@ -39,8 +39,10 @@ const findRecordsByUserOrCategory = (req, res) => {
   const filteredRecords = [];
 
   for (const record of records) {
-    if ((userId && userId == record.userId) ||
-    (categoryId && categoryId == record.categoryId)) {
+    const defineUser = !userId || userId == record.userId;
+    const defineCategory = !categoryId || categoryId == record.categoryId;
+
+    if (defineUser && defineCategory) {
       filteredRecords.push(record);
     }
   }
