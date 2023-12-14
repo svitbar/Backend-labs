@@ -38,7 +38,7 @@ const deleteCategoryById = (req, res) => {
   if (index !== -1) {
     const deletedCategory = categories.splice(index, 1)[0];
 
-    return res.status(201).json({
+    return res.status(200).json({
       message: 'category was successfully deleted.',
       category: deletedCategory,
     });

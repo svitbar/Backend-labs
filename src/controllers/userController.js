@@ -34,7 +34,7 @@ const deleteUserById = (req, res) => {
   if (index !== -1) {
     const deletedUser = users.splice(index, 1)[0];
 
-    return res.status(201)
+    return res.status(200)
         .json({message: 'User was successfully deleted.', user: deletedUser});
   } else {
     return res.status(404).json({message: 'Not found'});
