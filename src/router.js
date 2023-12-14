@@ -3,6 +3,7 @@ const express = require('express');
 const healthCheckController = require('./controllers/healthCheckController');
 const userController = require('./controllers/userController');
 const categoryController = require('./controllers/categoryController');
+const recordController = require('./controllers/recordController');
 
 const router = express.Router();
 
@@ -23,5 +24,15 @@ router.route('/category').post(categoryController.createCategory);
 router.route('/category/:id')
     .get(categoryController.findCategoryById)
     .delete(categoryController.deleteCategoryById);
+
+router.route('/records').get(recordController.findAllRecords);
+
+router.route('/record')
+    .post(recordController.createRecord)
+    .get(recordController.findRecordsByUserOrCategory);
+
+router.route('/record/:id')
+    .get(recordController.findRecordById)
+    .delete(recordController.deleteRecordById);
 
 module.exports = router;
