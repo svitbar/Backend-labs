@@ -5,8 +5,6 @@
 Clone the repository:<br>
 <code>git clone https://github.com/svitbar/Backend-labs.git</code><br>
 
-<code>git checkout lab1</code><br>
-
 ## Docker
 
 To build the project you need to create an image:<br>
@@ -24,8 +22,8 @@ To run:<br>
 <code>docker-compose up</code><br>
 
 To access the application:<br>
-http://localhost:8080/healthcheck
+http://localhost:8080
 
 ## Deploy
 
-https://backend-labs-n4oz.onrender.com/healthcheck
+https://backend-labs-n4oz.onrender.com
