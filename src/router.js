@@ -1,21 +1,38 @@
 const express = require('express');
-const moment = require('moment-timezone');
+
+const healthCheckController = require('./controllers/healthCheckController');
+const userController = require('./controllers/userController');
+const categoryController = require('./controllers/categoryController');
+const recordController = require('./controllers/recordController');
 
 const router = express.Router();
 
-router.get('/healthcheck', (req, res) => {
-  const timeZone = 'Europe/Kiev';
-  const currentDate = moment().tz(timeZone);
-  const formattedDate = currentDate.format('YYYY-MM-DD HH:mm:ss');
+router.get('/healthcheck', healthCheckController);
 
-  const status = 'Service is up and running';
+router.route('/users').get(userController.findAllUsers);
 
-  const response = {
-    date: formattedDate,
-    status: status,
-  };
+router.route('/user').post(userController.createNewUser);
 
-  res.status(200).json(response);
-});
+router.route('/user/:id')
+    .get(userController.findUserById)
+    .delete(userController.deleteUserById);
+
+router.route('/categories').get(categoryController.findAllCategories);
+
+router.route('/category').post(categoryController.createCategory);
+
+router.route('/category/:id')
+    .get(categoryController.findCategoryById)
+    .delete(categoryController.deleteCategoryById);
+
+router.route('/records').get(recordController.findAllRecords);
+
+router.route('/record')
+    .post(recordController.createRecord)
+    .get(recordController.findRecordsByUserOrCategory);
+
+router.route('/record/:id')
+    .get(recordController.findRecordById)
+    .delete(recordController.deleteRecordById);
 
 module.exports = router;
