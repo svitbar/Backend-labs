@@ -10,11 +10,13 @@ datasource db {
 model User {
   id    Int     @default(autoincrement()) @id
   name  String?
+  records Record[]
 }
 
 model Category {
   id    Int     @default(autoincrement()) @id
   name  String?
+  records Record[]
 }
 
 model Record {
@@ -23,4 +25,6 @@ model Record {
   categoryId  Int
   date        DateTime
   price       Float
+  user        User     @relation(fields: [userId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id])
 }
