@@ -4,6 +4,10 @@ const createNewUser = async (req, res) => {
   const {name} = req.body;
 
   try {
+    if (name === '') {
+      return res.status(400).json({message: 'Bad request'});
+    }
+
     const newUser = await prisma.user.create({
       data: {name},
     });
@@ -13,7 +17,7 @@ const createNewUser = async (req, res) => {
       user: newUser,
     });
   } catch (error) {
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 
@@ -31,7 +35,7 @@ const findUserById = async (req, res) => {
       return res.status(404).json({message: 'Not found'});
     }
   } catch (error) {
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 
@@ -48,11 +52,15 @@ const deleteUserById = async (req, res) => {
   const id = parseInt(req.params.id);
 
   try {
-    const deletedUser = await prisma.user.delete({
+    const isUser = await prisma.user.findUnique({
       where: {id},
     });
 
-    if (deletedUser) {
+    if (isUser) {
+      const deletedUser = await prisma.user.findUnique({
+        where: {id},
+      });
+
       return res.status(200).json({
         message: 'User was successfully deleted.',
         user: deletedUser,
@@ -61,7 +69,7 @@ const deleteUserById = async (req, res) => {
       return res.status(404).json({message: 'Not found'});
     }
   } catch (error) {
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 
