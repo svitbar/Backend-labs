@@ -9,7 +9,17 @@ const createNewUser = async (req, res) => {
     }
 
     const newUser = await prisma.user.create({
-      data: {name},
+      data: {
+        name,
+        account: {
+          create: {
+            balance: 0,
+          },
+        },
+      },
+      include: {
+        account: true,
+      },
     });
 
     return res.status(201).json({
@@ -57,7 +67,17 @@ const deleteUserById = async (req, res) => {
     });
 
     if (isUser) {
-      const deletedUser = await prisma.user.findUnique({
+      const userAccount = await prisma.account.findUnique({
+        where: {userId: id},
+      });
+
+      if (userAccount) {
+        await prisma.account.delete({
+          where: {userId: id},
+        });
+      }
+
+      const deletedUser = await prisma.user.delete({
         where: {id},
       });
 
@@ -69,9 +89,11 @@ const deleteUserById = async (req, res) => {
       return res.status(404).json({message: 'Not found'});
     }
   } catch (error) {
+    console.error(error);
     return res.status(400).json({message: 'Bad request'});
   }
 };
+
 
 module.exports = {
   createNewUser,

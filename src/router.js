@@ -4,6 +4,7 @@ const healthCheckController = require('./controllers/healthCheckController');
 const userController = require('./controllers/userController');
 const categoryController = require('./controllers/categoryController');
 const recordController = require('./controllers/recordController');
+const accountController = require('./controllers/accountController');
 
 const router = express.Router();
 
@@ -16,6 +17,12 @@ router.route('/user').post(userController.createNewUser);
 router.route('/user/:id')
     .get(userController.findUserById)
     .delete(userController.deleteUserById);
+
+router.route('/user/:userId/account/edit')
+    .put(accountController.addMoneyToAccount);
+
+router.route('/user/:userId/account')
+    .get(accountController.getAccountBalance);
 
 router.route('/categories').get(categoryController.findAllCategories);
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const prisma = require('../../prisma/prisma');
 
 const createRecord = async (req, res) => {
@@ -9,20 +10,51 @@ const createRecord = async (req, res) => {
       return res.status(400).json({message: 'Bad request'});
     }
 
-    const newRecord = await prisma.record.create({
-      data: {
-        userId: parseInt(userId),
-        categoryId: parseInt(categoryId),
-        date: new Date(),
-        price: parseFloat(price),
-      },
+    const existingUser = await prisma.user.findUnique({
+      where: {id: parseInt(userId)},
     });
 
-    return res.status(201).json({
-      message: 'User was successfully created.',
-      record: newRecord,
+    const existingCategory = await prisma.category.findUnique({
+      where: {id: parseInt(categoryId)},
     });
+
+    if (!existingUser || !existingCategory) {
+      return res.status(404).json({message: 'User or category not found'});
+    }
+
+    const existingAccount = await prisma.account.findUnique({
+      where: {userId: parseInt(userId)},
+    });
+
+    if (existingAccount && price <= existingAccount.balance) {
+      const updatedAccount = await prisma.account.update({
+        where: {userId: parseInt(userId)},
+        data: {
+          balance: {
+            decrement: parseFloat(price),
+          },
+        },
+      });
+
+      const newRecord = await prisma.record.create({
+        data: {
+          userId: parseInt(userId),
+          categoryId: parseInt(categoryId),
+          date: new Date(),
+          price: parseFloat(price),
+        },
+      });
+
+      return res.status(201).json({
+        message: 'Record was successfully created. Money deducted from the account.',
+        record: newRecord,
+        account: updatedAccount,
+      });
+    } else {
+      return res.status(400).json({message: 'Bad request'});
+    }
   } catch (error) {
+    console.error(error);
     return res.status(400).json({message: 'Bad request'});
   }
 };
