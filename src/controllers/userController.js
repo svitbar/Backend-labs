@@ -1,17 +1,21 @@
 const prisma = require('../../prisma/prisma');
+const bcrypt = require('bcryptjs');
+const jwtManager = require('../JWTManager');
 
-const createNewUser = async (req, res) => {
+const registerUser = async (req, res) => {
   const {name, password} = req.body;
 
   try {
-    if (name === '' && password === '') {
+    if (!name || !password) {
       return res.status(400).json({message: 'Bad request'});
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user.create({
       data: {
         name,
-        password,
+        password: hashedPassword,
         account: {
           create: {
             balance: 0,
@@ -23,10 +27,40 @@ const createNewUser = async (req, res) => {
       },
     });
 
+    const token = jwtManager.generateToken(newUser);
+
     return res.status(201).json({
       message: 'User was successfully created.',
       user: newUser,
+      token,
     });
+  } catch (error) {
+    return res.status(400).json({message: 'Bad request'});
+  }
+};
+
+const loginUser = async (req, res) => {
+  const {name, password} = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {name},
+    });
+
+    console.log('User from database:', user);
+
+    if (!user) {
+      return res.status(401).json({message: 'User not found'});
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (passwordMatch) {
+      const token = jwtManager.generateToken(user);
+      return res.status(200).json({token});
+    } else {
+      return res.status(401).json({message: 'Password mismatch'});
+    }
   } catch (error) {
     return res.status(400).json({message: 'Bad request'});
   }
@@ -95,9 +129,9 @@ const deleteUserById = async (req, res) => {
   }
 };
 
-
 module.exports = {
-  createNewUser,
+  registerUser,
+  loginUser,
   findUserById,
   findAllUsers,
   deleteUserById,
