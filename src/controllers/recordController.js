@@ -5,6 +5,10 @@ const createRecord = async (req, res) => {
   const {price} = req.body;
 
   try {
+    if (price < 0 || price === null) {
+      return res.status(400).json({message: 'Bad request'});
+    }
+
     const newRecord = await prisma.record.create({
       data: {
         userId: parseInt(userId),
@@ -19,7 +23,7 @@ const createRecord = async (req, res) => {
       record: newRecord,
     });
   } catch (error) {
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 
@@ -37,7 +41,7 @@ const findRecordById = async (req, res) => {
       return res.status(404).json({message: 'Not found'});
     }
   } catch (error) {
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 
@@ -58,7 +62,7 @@ const findRecordsByUserOrCategory = async (req, res) => {
 
     return res.status(200).json(filteredRecords);
   } catch (error) {
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 
@@ -75,11 +79,15 @@ const deleteRecordById = async (req, res) => {
   const id = parseInt(req.params.id);
 
   try {
-    const deletedRecord = await prisma.record.delete({
+    const isRecord = await prisma.record.findUnique({
       where: {id},
     });
 
-    if (deletedRecord) {
+    if (isRecord) {
+      const deletedRecord = await prisma.record.delete({
+        where: {id},
+      });
+
       return res.status(200).json({
         message: 'Record was successfully deleted.',
         record: deletedRecord,
@@ -88,7 +96,7 @@ const deleteRecordById = async (req, res) => {
       return res.status(404).json({message: 'Not found'});
     }
   } catch (error) {
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 
