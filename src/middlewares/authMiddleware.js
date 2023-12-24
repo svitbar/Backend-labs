@@ -1,12 +1,13 @@
 const jwtManager = require('../JWTManager');
 
 const authenticateUser = (req, res, next) => {
-  const token = req.headers.authorization;
-  console.log(token);
+  const authorizationHeader = req.headers.authorization;
 
-  if (!token) {
+  if (!authorizationHeader) {
     return res.status(401).json({message: 'Unauthorized'});
   }
+
+  const token = authorizationHeader.split(' ')[1];
 
   try {
     const decoded = jwtManager.verifyToken(token);

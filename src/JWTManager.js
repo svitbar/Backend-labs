@@ -6,17 +6,19 @@ const expiresIn = '1h';
 
 const generateToken = (user) => {
   const payload = {
-    userId: user.id,
-    username: user.name,
+    id: user.id,
+    name: user.name,
   };
 
-  const token = jwt.sign(payload, secretKey, {expiresIn});
+  const token = jwt.sign(payload, secretKey, {expiresIn: expiresIn});
+
   return token;
 };
 
 const verifyToken = (token) => {
   try {
     const decoded = jwt.verify(token, secretKey);
+
     return decoded;
   } catch (error) {
     throw new Error('Invalid token');
