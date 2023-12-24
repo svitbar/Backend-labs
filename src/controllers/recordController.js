@@ -1,5 +1,4 @@
-const {PrismaClient} = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../../prisma/prisma');
 
 const createRecord = async (req, res) => {
   const {userId, categoryId} = req.query;
