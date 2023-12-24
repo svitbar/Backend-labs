@@ -1,16 +1,17 @@
 const prisma = require('../../prisma/prisma');
 
 const createNewUser = async (req, res) => {
-  const {name} = req.body;
+  const {name, password} = req.body;
 
   try {
-    if (name === '') {
+    if (name === '' && password === '') {
       return res.status(400).json({message: 'Bad request'});
     }
 
     const newUser = await prisma.user.create({
       data: {
         name,
+        password,
         account: {
           create: {
             balance: 0,
