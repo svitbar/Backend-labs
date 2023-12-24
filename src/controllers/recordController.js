@@ -1,73 +1,134 @@
-const Record = require('../entities/record');
-const records = require('../db/recordDb');
+/* eslint-disable max-len */
+const prisma = require('../../prisma/prisma');
 
-const createRecord = (req, res) => {
+const createRecord = async (req, res) => {
   const {userId, categoryId} = req.query;
   const {price} = req.body;
-  const recordId = records.length + 1;
 
-  const newRecord = new Record(
-      recordId,
-      userId,
-      categoryId,
-      new Date(),
-      price,
-  );
+  try {
+    if (price < 0 || price === null) {
+      return res.status(400).json({message: 'Bad request'});
+    }
 
-  records.push(newRecord);
+    const existingUser = await prisma.user.findUnique({
+      where: {id: parseInt(userId)},
+    });
 
-  return res.status(201)
-      .json({message: 'Record was successfully created.', record: newRecord});
+    const existingCategory = await prisma.category.findUnique({
+      where: {id: parseInt(categoryId)},
+    });
+
+    if (!existingUser || !existingCategory) {
+      return res.status(404).json({message: 'User or category not found'});
+    }
+
+    const existingAccount = await prisma.account.findUnique({
+      where: {userId: parseInt(userId)},
+    });
+
+    if (existingAccount && price <= existingAccount.balance) {
+      const updatedAccount = await prisma.account.update({
+        where: {userId: parseInt(userId)},
+        data: {
+          balance: {
+            decrement: parseFloat(price),
+          },
+        },
+      });
+
+      const newRecord = await prisma.record.create({
+        data: {
+          userId: parseInt(userId),
+          categoryId: parseInt(categoryId),
+          date: new Date(),
+          price: parseFloat(price),
+        },
+      });
+
+      return res.status(201).json({
+        message: 'Record was successfully created. Money deducted from the account.',
+        record: newRecord,
+        account: updatedAccount,
+      });
+    } else {
+      return res.status(400).json({message: 'Bad request'});
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({message: 'Bad request'});
+  }
 };
 
-const findRecordById = (req, res) => {
-  const id = req.params.id;
+const findRecordById = async (req, res) => {
+  const id = parseInt(req.params.id);
 
-  const found = records.find((record) => record.id === parseInt(id));
+  try {
+    const foundRecord = await prisma.record.findUnique({
+      where: {id},
+    });
 
-  if (found) return res.status(200).json(found);
-  else return res.status(404).json({message: 'Not found'});
+    if (foundRecord) {
+      return res.status(200).json(foundRecord);
+    } else {
+      return res.status(404).json({message: 'Not found'});
+    }
+  } catch (error) {
+    return res.status(400).json({message: 'Bad request'});
+  }
 };
 
-const findRecordsByUserOrCategory = (req, res) => {
+const findRecordsByUserOrCategory = async (req, res) => {
   const {userId, categoryId} = req.query;
 
   if (!userId && !categoryId) {
     return res.status(400).json({message: 'Bad request'});
   }
 
-  const filteredRecords = [];
-
-  for (const record of records) {
-    const defineUser = !userId || userId == record.userId;
-    const defineCategory = !categoryId || categoryId == record.categoryId;
-
-    if (defineUser && defineCategory) {
-      filteredRecords.push(record);
-    }
-  }
-
-  return res.status(200).json(filteredRecords);
-};
-
-const findAllRecords = (req, res) => {
-  return res.status(200).json(records);
-};
-
-const deleteRecordById = (req, res) => {
-  const id = req.params.id;
-
-  const index = records.findIndex((record) => record.id === parseInt(id));
-
-  if (index !== -1) {
-    const deletedRecord = records.splice(index, 1)[0];
-
-    return res.status(200).json({
-      message: 'Record was successfully deleted.',
-      record: deletedRecord,
+  try {
+    const filteredRecords = await prisma.record.findMany({
+      where: {
+        userId: userId ? parseInt(userId) : undefined,
+        categoryId: categoryId ? parseInt(categoryId) : undefined,
+      },
     });
-  } else {
-    return res.status(404).json({message: 'Not found'});
+
+    return res.status(200).json(filteredRecords);
+  } catch (error) {
+    return res.status(400).json({message: 'Bad request'});
+  }
+};
+
+const findAllRecords = async (req, res) => {
+  try {
+    const records = await prisma.record.findMany();
+    return res.status(200).json(records);
+  } catch (error) {
+    return res.status(500).json({message: 'Internal Server Error'});
+  }
+};
+
+const deleteRecordById = async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const isRecord = await prisma.record.findUnique({
+      where: {id},
+    });
+
+    if (isRecord) {
+      const deletedRecord = await prisma.record.delete({
+        where: {id},
+      });
+
+      return res.status(200).json({
+        message: 'Record was successfully deleted.',
+        record: deletedRecord,
+      });
+    } else {
+      return res.status(404).json({message: 'Not found'});
+    }
+  } catch (error) {
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 

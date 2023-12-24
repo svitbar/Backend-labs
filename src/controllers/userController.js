@@ -1,45 +1,99 @@
-const User = require('../entities/user');
-const users = require('../db/userDb');
+const prisma = require('../../prisma/prisma');
 
-const createNewUser = (req, res) => {
+const createNewUser = async (req, res) => {
   const {name} = req.body;
-  const userId = users.length + 1;
 
-  const newUser = new User(userId, name);
+  try {
+    if (name === '') {
+      return res.status(400).json({message: 'Bad request'});
+    }
 
-  users.push(newUser);
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        account: {
+          create: {
+            balance: 0,
+          },
+        },
+      },
+      include: {
+        account: true,
+      },
+    });
 
-  return res.status(201)
-      .json({message: 'User was successfully created.', user: newUser});
-};
-
-const findUserById = (req, res) => {
-  const id = req.params.id;
-
-  const found = users.find((user) => user.id === parseInt(id));
-
-  if (found) return res.status(200).json(found);
-  else return res.status(404).json({message: 'Not found'});
-};
-
-const findAllUsers = (req, res) => {
-  return res.status(200).json(users);
-};
-
-const deleteUserById = (req, res) => {
-  const id = req.params.id;
-
-  const index = users.findIndex((user) => user.id === parseInt(id));
-
-  if (index !== -1) {
-    const deletedUser = users.splice(index, 1)[0];
-
-    return res.status(200)
-        .json({message: 'User was successfully deleted.', user: deletedUser});
-  } else {
-    return res.status(404).json({message: 'Not found'});
+    return res.status(201).json({
+      message: 'User was successfully created.',
+      user: newUser,
+    });
+  } catch (error) {
+    return res.status(400).json({message: 'Bad request'});
   }
 };
+
+const findUserById = async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const foundUser = await prisma.user.findUnique({
+      where: {id},
+    });
+
+    if (foundUser) {
+      return res.status(200).json(foundUser);
+    } else {
+      return res.status(404).json({message: 'Not found'});
+    }
+  } catch (error) {
+    return res.status(400).json({message: 'Bad request'});
+  }
+};
+
+const findAllUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany();
+    return res.status(200).json(users);
+  } catch (error) {
+    return res.status(500).json({message: 'Internal Server Error'});
+  }
+};
+
+const deleteUserById = async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const isUser = await prisma.user.findUnique({
+      where: {id},
+    });
+
+    if (isUser) {
+      const userAccount = await prisma.account.findUnique({
+        where: {userId: id},
+      });
+
+      if (userAccount) {
+        await prisma.account.delete({
+          where: {userId: id},
+        });
+      }
+
+      const deletedUser = await prisma.user.delete({
+        where: {id},
+      });
+
+      return res.status(200).json({
+        message: 'User was successfully deleted.',
+        user: deletedUser,
+      });
+    } else {
+      return res.status(404).json({message: 'Not found'});
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({message: 'Bad request'});
+  }
+};
+
 
 module.exports = {
   createNewUser,
