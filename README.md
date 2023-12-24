@@ -1,5 +1,10 @@
 # Backend-labs
 
+## Lab 3 Variant
+
+Group: **IM-12**
+<code>12 % 3 = 0 => income accounting</code><br>
+
 ## How to run
 
 Clone the repository:<br>
