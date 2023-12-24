@@ -30,6 +30,6 @@ To run:<br>
 To access the application:<br>
 http://localhost:8080
 
-## Deploy
+## Deploy for lab 4
 
-https://backend-labs-n4oz.onrender.com
+https://backend-lab-4-6m36.onrender.com
