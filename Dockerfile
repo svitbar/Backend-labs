@@ -9,4 +9,6 @@ RUN npm ci
 COPY ./src ./src
 COPY ./prisma ./prisma
 
+RUN npx prisma generate
+
 CMD ["node", "src/index.js"]
