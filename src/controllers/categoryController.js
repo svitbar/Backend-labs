@@ -2,7 +2,12 @@ const prisma = require('../../prisma/prisma');
 
 const createCategory = async (req, res) => {
   const {name} = req.body;
+
   try {
+    if (name === '') {
+      return res.status(400).json({message: 'Bad request'});
+    }
+
     const newCategory = await prisma.category.create({
       data: {name},
     });
@@ -12,7 +17,7 @@ const createCategory = async (req, res) => {
       category: newCategory,
     });
   } catch (error) {
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 
@@ -30,7 +35,7 @@ const findCategoryById = async (req, res) => {
       return res.status(404).json({message: 'Not found'});
     }
   } catch (error) {
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 
@@ -47,11 +52,15 @@ const deleteCategoryById = async (req, res) => {
   const id = parseInt(req.params.id);
 
   try {
-    const deletedCategory = await prisma.category.delete({
+    const isCategory = await prisma.category.findUnique({
       where: {id},
     });
 
-    if (deletedCategory) {
+    if (isCategory) {
+      const deletedCategory = await prisma.category.delete({
+        where: {id},
+      });
+
       return res.status(200).json({
         message: 'Category was successfully deleted.',
         category: deletedCategory,
@@ -60,7 +69,7 @@ const deleteCategoryById = async (req, res) => {
       return res.status(404).json({message: 'Not found'});
     }
   } catch (error) {
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res.status(400).json({message: 'Bad request'});
   }
 };
 
