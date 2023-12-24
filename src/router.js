@@ -5,18 +5,21 @@ const userController = require('./controllers/userController');
 const categoryController = require('./controllers/categoryController');
 const recordController = require('./controllers/recordController');
 const accountController = require('./controllers/accountController');
+const authenticateUser = require('./middlewares/authMiddleware');
 
 const router = express.Router();
 
 router.get('/healthcheck', healthCheckController);
 
-router.route('/users').get(userController.findAllUsers);
+router.route('/users').get(authenticateUser, userController.findAllUsers);
 
-router.route('/user').post(userController.createNewUser);
+router.route('/login').post(userController.loginUser);
+
+router.route('/user').post(userController.registerUser);
 
 router.route('/user/:id')
-    .get(userController.findUserById)
-    .delete(userController.deleteUserById);
+    .get(authenticateUser, userController.findUserById)
+    .delete(authenticateUser, userController.deleteUserById);
 
 router.route('/user/:userId/account/edit')
     .put(accountController.addMoneyToAccount);
