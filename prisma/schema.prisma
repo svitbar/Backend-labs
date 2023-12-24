@@ -16,3 +16,11 @@ model Category {
   id    Int     @default(autoincrement()) @id
   name  String?
 }
+
+model Record {
+  id          Int     @default(autoincrement()) @id
+  userId      Int
+  categoryId  Int
+  date        DateTime
+  price       Float
+}
