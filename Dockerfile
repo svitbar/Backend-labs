@@ -7,5 +7,6 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY ./src ./src
+COPY ./prisma ./prisma
 
 CMD ["node", "src/index.js"]
